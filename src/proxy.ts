@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAccessToken } from '@/lib/supabase/jwt'
 
-const PROTECTED_PREFIXES = ['/api/orders', '/api/masters', '/api/withdrawals', '/api/reviews', '/api/admin', '/api/payments']
+const PROTECTED_PREFIXES = ['/api/orders', '/api/masters', '/api/withdrawals', '/api/reviews', '/api/admin', '/api/payments', '/api/master-applications']
 const PUBLIC_API_PREFIXES = ['/api/auth', '/api/cities', '/api/payments/webhook', '/api/internal']
 
 export function proxy(req: NextRequest) {

@@ -1,3 +1,5 @@
+export type UserRole = 'client' | 'master' | 'city_admin' | 'superadmin'
+
 export type OrderStatus =
   | 'pending'
   | 'accepted'

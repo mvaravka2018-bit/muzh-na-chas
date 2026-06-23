@@ -2,9 +2,12 @@ import Link from 'next/link'
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Дашборд' },
-  { href: '/admin/applications', label: 'Заявки мастеров' },
+  { href: '/admin/masters', label: 'Мастера' },
+  { href: '/admin/applications', label: 'Заявки' },
   { href: '/admin/orders', label: 'Заказы' },
+  { href: '/admin/reviews', label: 'Отзывы' },
   { href: '/admin/withdrawals', label: 'Выводы' },
+  { href: '/admin/cities', label: 'Города' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

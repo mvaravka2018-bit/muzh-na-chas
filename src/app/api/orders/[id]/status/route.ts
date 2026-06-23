@@ -124,11 +124,12 @@ export async function PATCH(
 
   if (newStatus === 'confirmed') {
     await chargeCommission(id)
-    if (order.payment_type === 'cash' && parsed.data.total_amount === undefined) {
+    if (order.payment_type === 'cash') {
+      const finalAmount = update.total_amount ?? order.total_amount ?? 0
       await supabase.from('payments').insert({
         order_id: id,
         provider: 'cash',
-        amount: order.total_amount ?? 0,
+        amount: finalAmount,
         status: 'succeeded',
       })
     }
@@ -136,7 +137,14 @@ export async function PATCH(
 
   const event = NOTIFY_EVENT_BY_STATUS[newStatus]
   if (event) {
-    await notify({ event: event as Parameters<typeof notify>[0]['event'], order_id: id })
+    await notify({
+      event: event as Parameters<typeof notify>[0]['event'],
+      order_id: id,
+      extra: {
+        total_amount: update.total_amount ?? order.total_amount,
+        reason: update.cancel_reason ?? undefined,
+      },
+    })
   }
 
   return NextResponse.json(updated)

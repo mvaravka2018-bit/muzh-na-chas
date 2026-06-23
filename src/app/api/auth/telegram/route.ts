@@ -33,8 +33,7 @@ export async function POST(req: NextRequest) {
 
   const validation = validateTelegramInitData(parsed.data.initData, city.bot_token)
   if (!validation.ok || !validation.user) {
-    const status = validation.error === 'init_data_expired' ? 400 : 400
-    return NextResponse.json({ error: validation.error ?? 'invalid_init_data' }, { status })
+    return NextResponse.json({ error: validation.error ?? 'invalid_init_data' }, { status: 400 })
   }
 
   const tgUser = validation.user

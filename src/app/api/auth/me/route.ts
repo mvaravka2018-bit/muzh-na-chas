@@ -25,5 +25,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
+  if ((user as unknown as { is_blocked: boolean }).is_blocked) {
+    return NextResponse.json({ error: 'user_blocked' }, { status: 403 })
+  }
+
   return NextResponse.json(user)
 }

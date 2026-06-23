@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
     .select('id, city_id')
     .eq('id', parsed.data.category_id)
     .eq('city_id', auth.cityId)
+    .eq('is_active', true)
     .single()
 
   if (categoryError || !category) {

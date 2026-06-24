@@ -15,8 +15,12 @@ export async function GET(req: NextRequest) {
 
   let query = supabase
     .from('withdrawal_requests')
-    .select('*, master:masters(id, city_id, user:users(first_name, phone))')
+    .select('*, master:masters!inner(id, city_id, user:users(first_name, phone))')
     .order('created_at', { ascending: false })
+
+  if (auth.role === 'city_admin') {
+    query = query.eq('master.city_id', auth.cityId)
+  }
 
   if (status) {
     query = query.eq('status', status)
@@ -26,9 +30,5 @@ export async function GET(req: NextRequest) {
 
   if (error) return NextResponse.json({ error: 'internal_error' }, { status: 500 })
 
-  const filtered = auth.role === 'superadmin'
-    ? data
-    : data?.filter((w) => (w.master as unknown as { city_id: string })?.city_id === auth.cityId)
-
-  return NextResponse.json({ data: filtered })
+  return NextResponse.json({ data })
 }

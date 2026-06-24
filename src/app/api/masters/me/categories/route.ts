@@ -30,16 +30,12 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 })
   }
 
-  await supabase.from('master_categories').delete().eq('master_id', master.id)
+  const { error: rpcError } = await supabase.rpc('replace_master_categories', {
+    p_master_id: master.id,
+    p_category_ids: parsed.data.category_ids,
+  })
 
-  const rows = parsed.data.category_ids.map((categoryId) => ({
-    master_id: master.id,
-    category_id: categoryId,
-  }))
-
-  const { error: insertError } = await supabase.from('master_categories').insert(rows)
-
-  if (insertError) {
+  if (rpcError) {
     return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   }
 

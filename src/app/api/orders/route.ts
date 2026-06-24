@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
   const { data: category, error: categoryError } = await supabase
     .from('categories')
-    .select('id, city_id')
+    .select('id, city_id, name')
     .eq('id', parsed.data.category_id)
     .eq('city_id', auth.cityId)
     .eq('is_active', true)
@@ -102,6 +102,12 @@ export async function POST(req: NextRequest) {
     event: 'order_new',
     order_id: order.id,
     user_id: parsed.data.master_id,
+    extra: {
+      category: category.name,
+      address: parsed.data.address,
+      description: parsed.data.description,
+      scheduled_at: parsed.data.scheduled_at,
+    },
   })
 
   return NextResponse.json(order, { status: 201 })

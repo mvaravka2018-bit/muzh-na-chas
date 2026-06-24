@@ -39,10 +39,31 @@ export async function POST(req: NextRequest) {
   }
 
   if (event === 'payment.succeeded') {
+    const now = new Date().toISOString()
     await supabase
       .from('payments')
-      .update({ status: 'succeeded', provider_data: body, updated_at: new Date().toISOString() })
+      .update({ status: 'succeeded', provider_data: body, updated_at: now })
       .eq('id', payment.id)
+
+    await supabase
+      .from('orders')
+      .update({ status: 'confirmed', confirmed_at: now })
+      .eq('id', payment.order_id)
+      .in('status', ['completed'])
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const secret = process.env.INTERNAL_API_SECRET
+    if (supabaseUrl && secret) {
+      try {
+        await fetch(`${supabaseUrl}/functions/v1/commission`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-internal-secret': secret },
+          body: JSON.stringify({ order_id: payment.order_id }),
+        })
+      } catch (err) {
+        console.error('commission_charge_failed', err)
+      }
+    }
 
     await notify({ event: 'order_confirmed', order_id: payment.order_id, extra: { reason: 'payment_succeeded' } })
   } else if (event === 'payment.canceled') {

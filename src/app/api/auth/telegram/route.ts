@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { validateTelegramInitData } from '@/lib/telegram'
 import { signAccessToken, signRefreshToken } from '@/lib/supabase/jwt'
+import { rateLimit } from '@/lib/rate-limit'
 
 const BodySchema = z.object({
   initData: z.string().min(1),
@@ -10,6 +11,11 @@ const BodySchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown'
+  if (!rateLimit(`auth:${ip}`, 10, 60_000)) {
+    return NextResponse.json({ error: 'too_many_requests' }, { status: 429 })
+  }
+
   const body = await req.json()
   const parsed = BodySchema.safeParse(body)
   if (!parsed.success) {
